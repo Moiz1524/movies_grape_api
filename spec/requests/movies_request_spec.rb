@@ -4,6 +4,8 @@ RSpec.describe "Movies", type: :request do
 
   let(:movie) { create(:movie) }
   let(:movie_attrs) { attributes_for(:movie) }
+  let(:new_movie) { create(:new_movie) }
+  let(:new_movie_attrs) { attributes_for(:new_movie) }
 
   # GET /movies
   it "will display all movies" do
@@ -36,6 +38,33 @@ RSpec.describe "Movies", type: :request do
     expect(assigns[:movie]).to eq(movie)
     expect(response).to render_template(:show)
     expect(response).to have_http_status(200)
+  end
+
+  # GET /movies/:id/edit
+  it "will edit a single movie" do
+    get edit_movie_path(movie)
+    expect(assigns[:movie]).to eq(movie)
+    expect(response).to render_template(:edit)
+    expect(response).to have_http_status(200)
+  end
+
+  # PATCH/PUT /movies/:id
+  it "will update a single movie" do
+    patch movie_path(movie), params: { :movie => new_movie_attrs }
+    movie.reload
+    expect(assigns[:movie].name).to include('The Walking Dead')
+    expect(flash[:notice]).to include('Movie was successfully updated.')
+    expect(response).to redirect_to(movie_path(movie))
+    expect(response).to have_http_status(302)
+  end
+
+  # DELETE /movies/:id
+  it "will destroy an existing movie" do
+    delete movie_path(movie)
+    expect(assigns[:movie].destroyed?).to be(true)
+    expect(flash[:notice]).to include('Movie was successfully destroyed.')
+    expect(response).to redirect_to(movies_url)
+    expect(response).to have_http_status(302)
   end
 
 end

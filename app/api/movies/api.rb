@@ -6,8 +6,8 @@ module Movies
 
     helpers do
       params :movie_params do
-        requires :name, type: String
-        requires :released, type: DateTime
+        requires :name, type: String, allow_blank: false
+        requires :released, type: DateTime, allow_blank: false
         optional :points, type: Integer
         optional :liked, type: Boolean
       end

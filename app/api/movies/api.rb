@@ -4,6 +4,15 @@ module Movies
     prefix :api
     version 'v1', :path
 
+    helpers do
+      params :movie_params do
+        requires :name, type: String
+        requires :released, type: DateTime
+        optional :points, type: Integer
+        optional :liked, type: Boolean
+      end
+    end
+
     resources :movies do
       # GET /api/v1/movies
       desc 'It returns all movies'
@@ -16,17 +25,14 @@ module Movies
           movie = Movie.find(params[:id])
           { movie: movie }
         rescue ActiveRecord::RecordNotFound
-          error!('Record Not Found', 404) 
+          error!('Record Not Found', 404)
         end
       end
 
       # POST /api/v1/movies
       desc 'Creates a movie object'
       params do
-        requires :name, type: String
-        requires :released, type: DateTime
-        optional :points, type: Integer
-        optional :liked, type: Boolean
+        use :movie_params
       end
       post do
         movie = Movie.create!(declared(params))
@@ -36,16 +42,13 @@ module Movies
       # PUT/PATCH api/v1/movie/:id
       desc 'Update existing movie object'
       params do
-        requires :name, type: String
-        requires :released, type: DateTime
-        optional :points, type: Integer
-        optional :liked, type: Boolean
+        use :movie_params
       end
       route_param :id do
         put do
           movie = Movie.find(params[:id])
           movie.update(declared(params))
-          { message: 'Movie updated successfully.'}
+          { movie: movie, message: 'Movie updated successfully.'}
         rescue ActiveRecord::RecordNotFound
           error!('RecordNotFound', 404)
         end
